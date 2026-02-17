@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Generate Curriculum – CurricuForge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <!-- Navigation -->
+    <header class="navbar">
+      <div class="container">
+        <div class="nav-content">
+          <div class="logo">
+            <div class="logo-icon">Cf</div>
+            <div class="logo-text">CurricuForge</div>
+          </div>
+          <nav class="nav-menu">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/generate" class="nav-link active">Generate</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="generate-main">
+      <div class="container-narrow">
+        <div class="generate-header">
+          <h1 class="page-title">Generate Curriculum</h1>
+          <p class="page-subtitle">Describe your course and let AI create a structured syllabus you can refine.</p>
+        </div>
+
+        <div class="builder-card">
+          <form id="generate-form" class="builder-form">
+            <div class="form-group">
+              <label class="form-label" for="subject">Subject</label>
+              <input id="subject" name="subject" class="form-input" type="text" required
+                placeholder="e.g., Foundations of Data Science" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="level">Level</label>
+                <select id="level" name="level" class="form-input" required>
+                  <option value="" disabled selected>Select level</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="duration">Duration (weeks)</label>
+                <input id="duration" name="duration" class="form-input" type="number" min="1" max="52" required
+                  placeholder="12" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="goals">Skill Goals</label>
+              <textarea id="goals" name="goals" class="form-textarea" rows="4"
+                placeholder="List 3–5 skills or outcomes you want learners to achieve."></textarea>
+            </div>
+
+            <button type="submit" class="btn-generate">Generate Curriculum</button>
+          </form>
+        </div>
+
+        <!-- Output Section -->
+        <div class="output-wrapper">
+          <div id="output-placeholder" class="output-placeholder">
+            Your generated curriculum will appear here.
+          </div>
+
+          <div id="output-container" class="output-container" hidden>
+            <div class="output-header">
+              <h2 class="output-title">Generated Curriculum</h2>
+              <form id="download-form" method="post" action="/download-pdf" style="display: inline;">
+                <input type="hidden" name="subject" id="download-subject" />
+                <input type="hidden" name="curriculum" id="download-curriculum" />
+                <button type="submit" class="btn-download" id="download-button" disabled>
+                  Download PDF
+                </button>
+              </form>
+            </div>
+
+            <div class="accordion">
+              <details class="accordion-item" open>
+                <summary class="accordion-header">Course Overview</summary>
+                <div id="section-overview" class="accordion-content"></div>
+              </details>
+
+              <details class="accordion-item">
+                <summary class="accordion-header">Weekly Breakdown</summary>
+                <div id="section-weeks" class="accordion-content"></div>
+              </details>
+
+              <details class="accordion-item">
+                <summary class="accordion-header">Assignments</summary>
+                <div id="section-assignments" class="accordion-content"></div>
+              </details>
+
+              <details class="accordion-item">
+                <summary class="accordion-header">Learning Outcomes</summary>
+                <div id="section-outcomes" class="accordion-content"></div>
+              </details>
+
+              <details class="accordion-item">
+                <summary class="accordion-header">Alignment to Stated Goals</summary>
+                <div id="section-alignment" class="accordion-content"></div>
+              </details>
+
+              <details class="accordion-item">
+                <summary class="accordion-header">AI Skill Analysis</summary>
+                <div id="section-analysis" class="accordion-content"></div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-text">© 2026 CurricuForge. Built for educators.</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById("generate-form");
+    const placeholder = document.getElementById("output-placeholder");
+    const container = document.getElementById("output-container");
+    const sectionOverview = document.getElementById("section-overview");
+    const sectionWeeks = document.getElementById("section-weeks");
+    const sectionAssignments = document.getElementById("section-assignments");
+    const sectionOutcomes = document.getElementById("section-outcomes");
+    const sectionAlignment = document.getElementById("section-alignment");
+    const sectionAnalysis = document.getElementById("section-analysis");
+    const downloadForm = document.getElementById("download-form");
+    const downloadSubject = document.getElementById("download-subject");
+    const downloadCurriculum = document.getElementById("download-curriculum");
+    const downloadButton = document.getElementById("download-button");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const subject = form.subject.value.trim();
+      const level = form.level.value;
+      const duration = form.duration.value.trim();
+      const goals = form.goals.value.trim();
+
+
+      const requestBody = {
+        subject: subject,
+        level: level,
+        duration: duration + " weeks",
+        goals: goals
+      };
+
+      placeholder.textContent = "Generating curriculum...";
+      placeholder.classList.add("loading");
+      container.hidden = true;
+
+      try {
+        const response = await fetch("/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+          placeholder.textContent = "There was a problem generating the curriculum.";
+          placeholder.classList.remove("loading");
+          return;
+        }
+
+        const data = await response.json();
+        const text = (data.result || "").trim();
+
+        if (!text) {
+          placeholder.textContent = "No content returned. Try adjusting your inputs.";
+          placeholder.classList.remove("loading");
+          return;
+        }
+
+        const sections = splitSections(text);
+        sectionOverview.textContent = sections.overview;
+        sectionWeeks.textContent = sections.weeks;
+        sectionAssignments.textContent = sections.assignments;
+        sectionOutcomes.textContent = sections.outcomes;
+        sectionAlignment.textContent = sections.alignment;
+        sectionAnalysis.textContent = sections.analysis;
+
+        placeholder.textContent = "";
+        placeholder.classList.remove("loading");
+        container.hidden = false;
+
+        downloadSubject.value = subject;
+        downloadCurriculum.value = text;
+        downloadButton.disabled = false;
+      } catch (error) {
+        placeholder.textContent = "There was a problem generating the curriculum.";
+        placeholder.classList.remove("loading");
+      }
+    });
+
+    function splitSections(text) {
+      const sections = {
+        overview: "",
+        weeks: "",
+        assignments: "",
+        outcomes: "",
+        alignment: "",
+        analysis: ""
+      };
+
+      // Split by common section headers
+      const overviewMatch = text.match(/Course Overview[:\s]*([\s\S]*?)(?=Weekly Breakdown|Assignments|Learning Outcomes|Alignment to Stated Goals|AI Skill Analysis|$)/i);
+      const weeksMatch = text.match(/Weekly Breakdown[:\s]*([\s\S]*?)(?=Assignments|Learning Outcomes|Alignment to Stated Goals|AI Skill Analysis|$)/i);
+      const assignmentsMatch = text.match(/Assignments[:\s]*([\s\S]*?)(?=Learning Outcomes|Alignment to Stated Goals|AI Skill Analysis|$)/i);
+      const outcomesMatch = text.match(/Learning Outcomes[:\s]*([\s\S]*?)(?=Alignment to Stated Goals|AI Skill Analysis|$)/i);
+      const alignmentMatch = text.match(/Alignment to Stated Goals[:\s]*([\s\S]*?)(?=AI Skill Analysis|$)/i);
+      const analysisMatch = text.match(/AI Skill Analysis[:\s]*([\s\S]*?)$/i);
+
+      sections.overview = overviewMatch ? overviewMatch[1].trim() : "";
+      sections.weeks = weeksMatch ? weeksMatch[1].trim() : "";
+      sections.assignments = assignmentsMatch ? assignmentsMatch[1].trim() : "";
+      sections.outcomes = outcomesMatch ? outcomesMatch[1].trim() : "";
+      sections.alignment = alignmentMatch ? alignmentMatch[1].trim() : "";
+      sections.analysis = analysisMatch ? analysisMatch[1].trim() : "";
+
+      // If no sections found, put everything in overview
+      if (!sections.overview && !sections.weeks && !sections.assignments && !sections.outcomes) {
+        sections.overview = text;
+      }
+
+      return sections;
+    }
+  </script>
+</body>
+
+</html>

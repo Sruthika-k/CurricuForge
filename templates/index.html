@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CurricuForge – AI-Powered Curriculum Design</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Multi-model AI powered syllabus generation for modern educators." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Navigation -->
+    <header class="navbar">
+      <div class="container">
+        <div class="nav-content">
+          <div class="logo">
+            <div class="logo-icon">Cf</div>
+            <div class="logo-text">CurricuForge</div>
+          </div>
+          <nav class="nav-menu">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#impact" class="nav-link">Impact</a>
+            <a href="{{ url_for('get_generate') }}" class="btn-nav">Start Building</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-content">
+            <div class="hero-badge">
+              <span class="badge-dot"></span>
+              <span>Multi-model AI powered</span>
+            </div>
+            <h1 class="hero-title">Design Smarter Curriculum with AI</h1>
+            <p class="hero-subtitle">Multi-model AI powered syllabus generation for modern educators.</p>
+            <div class="hero-actions">
+              <a href="{{ url_for('get_generate') }}" class="btn-primary">Start Building</a>
+              <a href="#features" class="btn-secondary">See how it works</a>
+            </div>
+          </div>
+          
+          <div class="hero-visual">
+            <div class="preview-card">
+              <div class="preview-header">
+                <div class="preview-title">Curriculum Preview</div>
+                <span class="preview-badge">AI-Generated</span>
+              </div>
+              <div class="preview-content">
+                <div class="preview-section">
+                  <div class="preview-label">Course Overview</div>
+                  <div class="preview-text">This 12-week course introduces foundational concepts in data science...</div>
+                </div>
+                <div class="preview-section">
+                  <div class="preview-label">Week 1-2: Foundations</div>
+                  <div class="preview-text">• Introduction to Python & data structures<br>• Basic statistical concepts</div>
+                </div>
+                <div class="preview-section">
+                  <div class="preview-label">Week 3-4: Data Analysis</div>
+                  <div class="preview-text">• Pandas and NumPy essentials<br>• Data cleaning techniques</div>
+                </div>
+              </div>
+              <div class="preview-footer">
+                <div class="preview-meta">Powered by Gemini + HuggingFace</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Built for Modern Educators</h2>
+          <p class="section-description">Combine academic rigor with AI assistance to create level-based teaching plans in minutes.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3 class="feature-title">Multi-Model AI</h3>
+            <p class="feature-description">Gemini + HuggingFace working together to generate accurate, context-aware curricula.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3 class="feature-title">Adaptive Level-Based Design</h3>
+            <p class="feature-description">Content automatically adjusts for Beginner, Intermediate, or Advanced learners.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📅</div>
+            <h3 class="feature-title">Weekly Breakdown + Assignments</h3>
+            <p class="feature-description">Clear week-by-week structure with topics, outcomes, and suggested assignments.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section id="impact" class="impact">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Impact Where It Matters</h2>
+          <p class="section-description">Reduce planning overhead while making skill-based design practical for every educator.</p>
+        </div>
+        <div class="impact-grid">
+          <div class="impact-item">
+            <div class="impact-icon">⚡</div>
+            <h3 class="impact-title">Reduces Teacher Workload</h3>
+            <p class="impact-text">Automate the first draft so planning meetings begin from structure, not a blank page.</p>
+          </div>
+          <div class="impact-item">
+            <div class="impact-icon">🎯</div>
+            <h3 class="impact-title">Enables Rapid Skill-Based Education</h3>
+            <p class="impact-text">Start from competencies. CurricuForge backfills weekly topics and projects.</p>
+          </div>
+          <div class="impact-item">
+            <div class="impact-icon">🌍</div>
+            <h3 class="impact-title">Supports Rural Institutions</h3>
+            <p class="impact-text">Provide consistent, standards-aligned curricula to schools without specialist designers.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-text">© 2026 CurricuForge. Built for educators.</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
