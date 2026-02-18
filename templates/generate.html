@@ -145,7 +145,6 @@
     const sectionAssignments = document.getElementById("section-assignments");
     const sectionOutcomes = document.getElementById("section-outcomes");
     const sectionAlignment = document.getElementById("section-alignment");
-    const sectionAnalysis = document.getElementById("section-analysis");
     const downloadForm = document.getElementById("download-form");
     const downloadSubject = document.getElementById("download-subject");
     const downloadCurriculum = document.getElementById("download-curriculum");
@@ -158,7 +157,6 @@
       const level = form.level.value;
       const duration = form.duration.value.trim();
       const goals = form.goals.value.trim();
-
 
       const requestBody = {
         subject: subject,
@@ -174,9 +172,7 @@
       try {
         const response = await fetch("/generate", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestBody),
         });
 
@@ -196,12 +192,11 @@
         }
 
         const sections = splitSections(text);
-        sectionOverview.textContent = sections.overview;
-        sectionWeeks.textContent = sections.weeks;
-        sectionAssignments.textContent = sections.assignments;
-        sectionOutcomes.textContent = sections.outcomes;
-        sectionAlignment.textContent = sections.alignment;
-        sectionAnalysis.textContent = sections.analysis;
+        sectionOverview.textContent = sections.overview || "No overview found.";
+        sectionWeeks.textContent = sections.weeks || "No weekly breakdown found.";
+        sectionAssignments.textContent = sections.assignments || "No assignments found.";
+        sectionOutcomes.textContent = sections.outcomes || "No outcomes found.";
+        sectionAlignment.textContent = sections.alignment || "No alignment section found.";
 
         placeholder.textContent = "";
         placeholder.classList.remove("loading");
@@ -216,33 +211,40 @@
       }
     });
 
+    /**
+     * Split plain text into named sections by detecting UPPERCASE headings.
+     */
     function splitSections(text) {
-      const sections = {
-        overview: "",
-        weeks: "",
-        assignments: "",
-        outcomes: "",
-        alignment: "",
-        analysis: ""
-      };
+      const sections = { overview: "", weeks: "", assignments: "", outcomes: "", alignment: "" };
 
-      // Split by common section headers
-      const overviewMatch = text.match(/Course Overview[:\s]*([\s\S]*?)(?=Weekly Breakdown|Assignments|Learning Outcomes|Alignment to Stated Goals|AI Skill Analysis|$)/i);
-      const weeksMatch = text.match(/Weekly Breakdown[:\s]*([\s\S]*?)(?=Assignments|Learning Outcomes|Alignment to Stated Goals|AI Skill Analysis|$)/i);
-      const assignmentsMatch = text.match(/Assignments[:\s]*([\s\S]*?)(?=Learning Outcomes|Alignment to Stated Goals|AI Skill Analysis|$)/i);
-      const outcomesMatch = text.match(/Learning Outcomes[:\s]*([\s\S]*?)(?=Alignment to Stated Goals|AI Skill Analysis|$)/i);
-      const alignmentMatch = text.match(/Alignment to Stated Goals[:\s]*([\s\S]*?)(?=AI Skill Analysis|$)/i);
-      const analysisMatch = text.match(/AI Skill Analysis[:\s]*([\s\S]*?)$/i);
+      const SECTION_MAP = [
+        { key: "overview", pattern: /^COURSE OVERVIEW/m },
+        { key: "weeks", pattern: /^WEEKLY BREAKDOWN/m },
+        { key: "assignments", pattern: /^ASSIGNMENTS/m },
+        { key: "outcomes", pattern: /^LEARNING OUTCOMES/m },
+        { key: "alignment", pattern: /^ALIGNMENT TO STATED GOALS/m },
+      ];
 
-      sections.overview = overviewMatch ? overviewMatch[1].trim() : "";
-      sections.weeks = weeksMatch ? weeksMatch[1].trim() : "";
-      sections.assignments = assignmentsMatch ? assignmentsMatch[1].trim() : "";
-      sections.outcomes = outcomesMatch ? outcomesMatch[1].trim() : "";
-      sections.alignment = alignmentMatch ? alignmentMatch[1].trim() : "";
-      sections.analysis = analysisMatch ? analysisMatch[1].trim() : "";
+      // Find positions of each section heading
+      const positions = SECTION_MAP.map(s => {
+        const match = s.pattern.exec(text);
+        return { key: s.key, index: match ? match.index : -1 };
+      }).filter(p => p.index >= 0).sort((a, b) => a.index - b.index);
 
-      // If no sections found, put everything in overview
-      if (!sections.overview && !sections.weeks && !sections.assignments && !sections.outcomes) {
+      // Extract content between consecutive headings
+      for (let i = 0; i < positions.length; i++) {
+        const start = positions[i].index;
+        const end = i + 1 < positions.length ? positions[i + 1].index : text.length;
+        // Skip the heading line itself
+        const content = text.slice(start, end);
+        const firstNewline = content.indexOf("\n");
+        sections[positions[i].key] = firstNewline >= 0
+          ? content.slice(firstNewline + 1).trim()
+          : "";
+      }
+
+      // Fallback: if no sections detected, put everything in overview
+      if (positions.length === 0) {
         sections.overview = text;
       }
 
